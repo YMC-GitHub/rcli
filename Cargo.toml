@@ -4,10 +4,7 @@ dependencies = {}
 name = "rcli"
 version = "0.1.0"
 edition = "2021"
-authors = [
-  "ymc-github <ymc.github@gmail.com>",
-  "yemiancheng <ymc.github@gmail.com>",
-]
+authors = ["yemiancheng <ymc.github@gmail.com>"]
 description = "a project name rcli"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/ymc-github/rcli"
