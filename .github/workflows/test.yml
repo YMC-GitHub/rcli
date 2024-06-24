@@ -84,6 +84,7 @@ jobs:
       - name: Archive to x.zip or x.tar.gz
         shell: bash
         run: |
+          ls -al target
           # Replace with the name of your binary
           binary_name="${{ env.APP_NAME }}"
 
