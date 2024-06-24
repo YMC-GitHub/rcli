@@ -9,12 +9,12 @@ authors = [
   "yemiancheng <ymc.github@gmail.com>",
 ]
 description = "a project name rcli"
-license = "mit"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/ymc-github/rcli"
 homepage = "https://github.com/ymc-github/rcli"
 documentation = "https://github.com/ymc-github/rcli"
 keywords = ["rcli", "demo"]
-categories = ["cli", "rcli", "demo"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name = "rcli"
