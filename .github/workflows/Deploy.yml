@@ -1,0 +1,106 @@
+# [Deploy Rust programs across platforms via GitHub Actions](https://dcsmf.github.io/post/40f7a3b2/)
+
+# code(core): set this github action name as Deploy
+name: Deploy
+
+env:
+  APP_NAME: rcli
+
+on:
+  # let it able to dispatch manually
+  workflow_dispatch:
+
+  # push:
+  # code(core): let this workflow run when tag push and tag like M.m.p
+  #   tags:
+  #     - "[0-9]+.[0-9]+.[0-9]+" # like 0.1.0, 2024.06.04
+
+permissions:
+  contents: write
+
+jobs:
+  # code(core): define job build-and-upload
+  build-and-upload:
+    name: Build and upload
+    # code(core): le it run on matrix.os
+    runs-on: ${{ matrix.os }}
+
+    # code(core): define strategy.matrix for diferent os
+    strategy:
+      matrix:
+        # You can add more, for any target you'd like!
+        include:
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+
+          - build: macos
+            os: macos-latest
+            target: x86_64-apple-darwin
+
+          - build: windows-gnu
+            os: windows-latest
+            target: x86_64-pc-windows-gnu
+
+    steps:
+      # code(core): clone repository with actions/checkout@3
+      - name: Clone repository V3
+        uses: actions/checkout@v3
+      # - name: Clone repository V4
+      #   uses: actions/checkout@v4
+
+      # code(core): get the release version from the tag
+      - name: Get the release version from the tag
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      # - name: Get the release version from the tag
+      #   id: get_version
+      #   run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      # code(core): install rust with dtolnay/rust-toolchain@stable
+      - name: Install Rust
+        # Or @nightly if you want
+        uses: dtolnay/rust-toolchain@stable
+        # Arguments to pass in
+        with:
+          # Make Rust compile to our target (defined in the matrix)
+          targets: ${{ matrix.target }}
+
+      # code(core): use cross tool to build in docker with actions-rs/cargo@v1
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --verbose --release --target ${{ matrix.target }}
+
+      # code(core): put binnary to x.zip or x.tar.gz
+      - name: Archive to x.zip or x.tar.gz
+        shell: bash
+        run: |
+          # Replace with the name of your binary
+          binary_name="${{ env.APP_NAME }}"
+
+          dirname="$binary_name-${{ env.VERSION }}-${{ matrix.target }}"
+          mkdir "$dirname"
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv "target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
+          else
+            mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
+          fi
+
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            7z a "$dirname.zip" "$dirname"
+            echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+          else
+            tar -czf "$dirname.tar.gz" "$dirname"
+            echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
+          fi
+
+      # code(core): upload the binaries with softprops/action-gh-release@v1
+      - name: Release to github release pages
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ env.ASSET }}
+          # repository: "ymc-github/other-public-repo"
