@@ -104,3 +104,5 @@ jobs:
           files: |
             ${{ env.ASSET }}
           # repository: "ymc-github/other-public-repo"
+          # token: ${{ env.othertoken }}
+          # token: ${{ github.token }}
