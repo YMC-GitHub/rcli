@@ -1,4 +1,4 @@
-use rcli::zero;
+use yors::zero;
 
 fn main() {
     println!("{}", zero());

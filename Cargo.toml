@@ -1,7 +1,7 @@
 dependencies = {}
 
 [package]
-name = "rcli"
+name = "yors"
 version = "0.1.0"
 edition = "2021"
 authors = ["yemiancheng <ymc.github@gmail.com>"]
@@ -13,6 +13,7 @@ documentation = "https://github.com/ymc-github/rcli"
 keywords = ["rcli", "demo"]
 categories = ["command-line-utilities"]
 
+include = ["**/*.rs", "Cargo.toml"]
 [[bin]]
 name = "rcli"
 path = "src/main.rs"

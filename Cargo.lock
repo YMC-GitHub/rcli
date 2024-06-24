@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "rcli"
+name = "yors"
 version = "0.1.0"
