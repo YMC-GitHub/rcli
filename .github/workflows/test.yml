@@ -87,12 +87,12 @@ jobs:
           # Replace with the name of your binary
           binary_name="${{ env.APP_NAME }}"
 
-          dirname="$binary_name-${{ env.VERSION }}-${{ matrix.target }}"
+          dirname="${{ env.APP_NAME }}-${{ env.VERSION }}-${{ matrix.target }}"
           mkdir "$dirname"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            mv "target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
+            mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}.exe" "$dirname"
           else
-            mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
+            mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}" "$dirname"
           fi
 
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
