@@ -117,17 +117,19 @@ jobs:
         if: matrix.build == 'linux' || matrix.build == 'macos'
         run: strip "target/${{ matrix.target }}/release/prj"
 
-      - name: Build archive
+      - name: Archive to x.zip or x.tar.gz
         shell: bash
         run: |
-          dirname="${{ env.APP_NAME }}-${{ needs.create-release.outputs.version }}-${{ matrix.target }}"
+          # Replace with the name of your binary
+          binary_name="${{ env.APP_NAME }}"
+
+          dirname="$binary_name-${{ env.VERSION }}-${{ matrix.target }}"
           mkdir "$dirname"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            mv "target/${{ matrix.target }}/release/prj.exe" "$dirname"
+            mv "target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
           else
-            mv "target/${{ matrix.target }}/release/prj" "$dirname"
+            mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
           fi
-          mv LICENSE "$dirname"
 
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             7z a "$dirname.zip" "$dirname"
