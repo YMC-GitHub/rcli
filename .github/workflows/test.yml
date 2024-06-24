@@ -85,23 +85,26 @@ jobs:
         shell: bash
         run: |
           ls -al target
+          ls -al target/release
+          find target -name '*${{ env.APP_NAME }}*' -type f -prune -print
+
           # Replace with the name of your binary
           binary_name="${{ env.APP_NAME }}"
 
           dirname="${{ env.APP_NAME }}-${{ env.VERSION }}-${{ matrix.target }}"
           mkdir "$dirname"
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}.exe" "$dirname"
-          else
-            mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}" "$dirname"
-          fi
+          # if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          #   mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}.exe" "$dirname"
+          # else
+          #   mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}" "$dirname"
+          # fi
 
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            7z a "$dirname.zip" "$dirname"
-            echo "ASSET=$dirname.zip" >> $GITHUB_ENV
-          else
-            tar -czf "$dirname.tar.gz" "$dirname"
-            echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
-          fi
+          # if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          #   7z a "$dirname.zip" "$dirname"
+          #   echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+          # else
+          #   tar -czf "$dirname.tar.gz" "$dirname"
+          #   echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
+          # fi
 
           ls -lh $ASSET | awk '{print $5}'
