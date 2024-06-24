@@ -27,3 +27,9 @@ This project is licensed under the [MIT License](./).
 - [make beautiful readme badges with shields.io](https://shields.io/)
 
 - ...
+
+## Refers
+
+[allow and set package caterogy in cargo.toml file](https://crates.io/category_slugs)
+
+- ...
