@@ -115,7 +115,7 @@ jobs:
 
       - name: Strip release binary (linux and macos)
         if: matrix.build == 'linux' || matrix.build == 'macos'
-        run: strip "target/${{ matrix.target }}/release/prj"
+        run: strip "target/${{ matrix.target }}/release/${{ env.APP_NAME }}"
 
       - name: Archive to x.zip or x.tar.gz
         shell: bash

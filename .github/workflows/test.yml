@@ -114,4 +114,4 @@ jobs:
             echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
           fi
 
-          ls -lh $ASSET | awk '{print $5}'
+          ls -lh $ASSET | awk '{print $9,$5}'
