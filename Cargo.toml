@@ -2,7 +2,7 @@ dependencies = { }
 
 [package]
 name = "yors"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = [ "yemiancheng <ymc.github@gmail.com>" ]
 description = "a project name rcli"
