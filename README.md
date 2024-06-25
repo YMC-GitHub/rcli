@@ -23,7 +23,6 @@ This project is licensed under the [MIT OR Apache-2.0](./LICENSE).
 
 - [ ] publish to private crate.io
 - [ ] release to github release page in other repo when this is private
-- [ ] [refer BurntSushi/ripgrep's release.yml](https://github.com/BurntSushi/ripgrep/blob/master/.github/workflows/release.yml)
 
 ## Thanks
 
@@ -33,6 +32,8 @@ This project is licensed under the [MIT OR Apache-2.0](./LICENSE).
 
 ## Refers
 
-[allow and set package caterogy in cargo.toml file](https://crates.io/category_slugs)
+- [allow and set package caterogy in cargo.toml file](https://crates.io/category_slugs)
+
+- [refer BurntSushi/ripgrep's release.yml](https://github.com/BurntSushi/ripgrep/blob/master/.github/workflows/release.yml)
 
 - ...
