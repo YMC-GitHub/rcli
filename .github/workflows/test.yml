@@ -1,4 +1,5 @@
 # [dzfrias/projectable's ci](https://github.com/dzfrias/projectable/blob/main/.github/workflows/ci.yml)
+# [BurntSushi/ripgrep's ci](https://github.com/BurntSushi/ripgrep/blob/master/.github/workflows/ci.yml)
 
 # code(core): set this github action name as test
 
@@ -10,6 +11,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "00 01 * * *"
+
+permissions:
+  # to fetch code (actions/checkout)
+  contents: read
 
 env:
   APP_NAME: rcli
@@ -54,8 +61,8 @@ jobs:
 
     steps:
       # code(core): clone -> install rust -> setup cache -> build -> run test
-      - name: clone repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1

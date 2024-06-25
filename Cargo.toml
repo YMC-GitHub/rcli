@@ -1,19 +1,19 @@
-dependencies = {}
+dependencies = { }
 
 [package]
 name = "yors"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-authors = ["yemiancheng <ymc.github@gmail.com>"]
+authors = [ "yemiancheng <ymc.github@gmail.com>" ]
 description = "a project name rcli"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/ymc-github/rcli"
 homepage = "https://github.com/ymc-github/rcli"
 documentation = "https://github.com/ymc-github/rcli"
-keywords = ["rcli", "demo"]
-categories = ["command-line-utilities"]
+keywords = [ "rcli", "demo" ]
+categories = [ "command-line-utilities" ]
+include = [ "**/*.rs", "Cargo.toml" ]
 
-include = ["**/*.rs", "Cargo.toml"]
 [[bin]]
 name = "rcli"
 path = "src/main.rs"

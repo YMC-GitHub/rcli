@@ -1,4 +1,5 @@
 # [dzfrias/projectable's release](https://github.com/dzfrias/projectable/blob/main/.github/workflows/release.yml)
+# [BurntSushi/ripgrep's release](https://github.com/BurntSushi/ripgrep/blob/master/.github/workflows/release.yml)
 
 # code(core): set this github action name as release
 name: release
@@ -24,43 +25,63 @@ jobs:
       upload_url: ${{ env.RELEASE_UPLOAD_URL }}
       version: ${{ env.VERSION }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # get version -> show version -> check version
       - name: Get the release version from the tag
         shell: bash
         if: env.VERSION == ''
         run: |
           echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Show the version
+        shell: bash
+        run: |
           echo "version is: ${{ env.VERSION }}"
 
-      - name: Create GitHub release
-        uses: actions/github-script@v6
+      - name: Check that tag version and Cargo.toml version are the same
+        shell: bash
+        run: |
+          if ! grep -q "version = \"$VERSION\"" Cargo.toml; then
+            echo "version does not match Cargo.toml" >&2
+            exit 1
+          fi
+
+      # - name: Create GitHub release
+      #   uses: actions/github-script@v6
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     github-token: "${{ secrets.GITHUB_TOKEN }}"
+      #     script: |
+      #       try {
+      #         const response = await github.rest.repos.createRelease({
+      #           draft: false,
+      #           generate_release_notes: true,
+      #           name: process.env.VERSION,
+      #           owner: context.repo.owner,
+      #           prerelease: false,
+      #           repo: context.repo.repo,
+      #           tag_name: process.env.VERSION,
+      #         });
+
+      #         core.exportVariable('RELEASE_ID', response.data.id);
+      #         core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+      #       } catch (error) {
+      #         core.setFailed(error.message);
+      #       }
+
+      # https://cli.github.com/manual/gh_release_create
+      - name: Create GitHub release draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          script: |
-            try {
-              const response = await github.rest.repos.createRelease({
-                draft: false,
-                generate_release_notes: true,
-                name: process.env.VERSION,
-                owner: context.repo.owner,
-                prerelease: false,
-                repo: context.repo.repo,
-                tag_name: process.env.VERSION,
-              });
-
-              core.exportVariable('RELEASE_ID', response.data.id);
-              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
-            } catch (error) {
-              core.setFailed(error.message);
-            }
+        run: gh release create $VERSION --draft --verify-tag --title $VERSION
 
   # code(core): define job build-and-upload
   build-and-upload:
-    name:
-      Build and upload
-
-      # code(core): let it run when create-release done
+    name: Build and upload
+    # code(core): let it run when create-release done
     needs: create-release
     runs-on: ${{ matrix.os }}
 
@@ -95,8 +116,8 @@ jobs:
 
     steps:
       # code(core): clone -> install rust -> build -> strip -> archive -> upload
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -116,6 +137,40 @@ jobs:
       - name: Strip release binary (linux and macos)
         if: matrix.build == 'linux' || matrix.build == 'macos'
         run: strip "target/${{ matrix.target }}/release/${{ env.APP_NAME }}"
+
+      - name: Determine archive name
+        shell: bash
+        run: |
+          version="${{ needs.create-release.outputs.version }}"
+          echo "ARCHIVE=${{ env.APP_NAME }}-${version}-${{ matrix.target }}" >> $GITHUB_ENV
+
+      - name: Creating directory for archive
+        shell: bash
+        run: |
+          mkdir -p "$ARCHIVE"
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}.exe" "$ARCHIVE"
+          else
+            mv "target/${{ matrix.target }}/release/${{ env.APP_NAME }}" "$ARCHIVE"
+          fi
+
+      - name: Build archive (Windows)
+        shell: bash
+        if: matrix.os == 'windows-latest'
+        run: |
+          7z a "$ARCHIVE.zip" "$ARCHIVE"
+          certutil -hashfile "$ARCHIVE.zip" SHA256 > "$ARCHIVE.zip.sha256"
+          echo "ASSET=$ARCHIVE.zip" >> $GITHUB_ENV
+          echo "ASSET_SUM=$ARCHIVE.zip.sha256" >> $GITHUB_ENV
+
+      - name: Build archive (Unix)
+        shell: bash
+        if: matrix.os != 'windows-latest'
+        run: |
+          tar czf "$ARCHIVE.tar.gz" "$ARCHIVE"
+          shasum -a 256 "$ARCHIVE.tar.gz" > "$ARCHIVE.tar.gz.sha256"
+          echo "ASSET=$ARCHIVE.tar.gz" >> $GITHUB_ENV
+          echo "ASSET_SUM=$ARCHIVE.tar.gz.sha256" >> $GITHUB_ENV
 
       - name: Archive to x.zip or x.tar.gz
         shell: bash
@@ -139,15 +194,23 @@ jobs:
             echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
           fi
 
-      - name: Upload archive
-        uses: actions/upload-release-asset@v1.0.1
+      - name: Upload release archive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.ASSET }}
-          asset_name: ${{ env.ASSET }}
-          asset_content_type: application/octet-stream
+        shell: bash
+        run: |
+          version="${{ needs.create-release.outputs.version }}"
+          gh release upload "$version" ${{ env.ASSET }} ${{ env.ASSET_SUM }}
+
+      # - name: Upload archive
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ needs.create-release.outputs.upload_url }}
+      #     asset_path: ${{ env.ASSET }}
+      #     asset_name: ${{ env.ASSET }}
+      #     asset_content_type: application/octet-stream
 
   # code(core): define job publish-cargo
   publish-cargo:
