@@ -78,9 +78,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release create $VERSION --draft --verify-tag --title $VERSION
 
-  # code(core): define job build-and-upload
-  build-and-upload:
-    name: Build and upload
+  # code(core): define job build-and-upload-release
+  build-and-upload-release:
+    name: Build and upload release
     # code(core): let it run when create-release done
     needs: create-release
     runs-on: ${{ matrix.os }}
@@ -216,6 +216,8 @@ jobs:
   publish-cargo:
     name: Publish to Cargo
     runs-on: ubuntu-latest
+    # code(core): let it run when build-and-upload-release done
+    needs: build-and-upload-release
     steps:
       - uses: actions/checkout@v3
 
